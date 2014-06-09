@@ -14,7 +14,7 @@ end
 class Deck
   attr_accessor :deck
   def initialize
-    @deck = nil # Determine the best way to hold the cards
+    @deck = [] # Determine the best way to hold the cards
   end
 
   # Given a card, insert it on the bottom your deck
@@ -34,7 +34,8 @@ class Deck
 
   # Reset this deck with 52 cards
   def create_52_card_deck
-
+    while
+      @deck<<Card.new()
   end
 
 end
