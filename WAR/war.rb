@@ -35,7 +35,7 @@ class Deck
   # Reset this deck with 52 cards
   def create_52_card_deck
     while
-      @deck<<Card.new("hello")
+      @deck<<Card.new()
   end
 
 end
