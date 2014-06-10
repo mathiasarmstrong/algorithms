@@ -37,12 +37,6 @@ class Deck
 
   # Remove the top card from your deck and return it
   def deal_card
-    # i=@first_index
-    # res = @deck[i]
-    # @deck[i] =nil
-    # @first_index+=1
-    # i>=51 ? @deck.compact! : nil
-    # res
     if @deck[@deck.length].nil?
       @deck=@placeholder
       @first_index=0
@@ -120,24 +114,22 @@ class War
 
   # You will need to play the entire game in this method using the WarAPI
   def play_game
-    loot=WarAPI.play_turn(@player1,@player1.hand.deal_card,@player2,@player2.hand.deal_card)
+    loot = WarAPI.play_turn(@player1,@player1.hand.deal_card,@player2,@player2.hand.deal_card)
     loot.each do |key, value|
       value.each{|card|key.hand.add_card(card)}
     end
   end
   def war(player1,card1,player2,card2)
-    temp_deck2, temp_deck1=[card1], [card2]
-    i=0
-    while i<4
+    temp_deck1 = [card1]
+    temp_deck2 = [card2]
+    4.times do |i|
       temp_deck1<<player1.hand.deal_card
-      i+=1
     end
-    i=0
-    while i<4
+    4.times do |i|
       temp_deck2<<player2.hand.deal_card
-      i+=1
     end
-   return {player1: temp_deck1, player2: temp_deck2}
+    loot = WarAPI.play_turn(@player1,temp_deck1,@player2,temp_deck2)
+   return (player1, loot[player1], player2, loot[player2])
   end
 end
 
@@ -145,20 +137,13 @@ class WarAPI
   # This method will take a card from each player and
   # return a hash with the cards that each player should receive
   def self.play_turn(player1, card1, player2, card2)
-    if card1.value > card2.value
-      {player1 => [card1, card2], player2 => []}
-    elsif card2.value > card1.value
-      {player1 => [], player2 => [card2, card1]}
+    !card1.is_a(Array) ? card1,card2=[card1],[card2] : nil
+    if card1[-1].value > card2[-1].value
+      {player1 => card1+card2, player2 => []}
+    elsif card2[-1].value > card1[-1].value
+      {player1 => [], player2 => card2+card1}
     elsif card1==card2
       result = self.war
-      winner = result[:player1]+ result[:player2]
-      if result[:player1][-1]>result[:player2][-1]
-        {player1 => winner, player2 => []}
-      elsif result[:player1][-1]<result[:player2][-1]
-        {player2 => winner, player1 => []}
-      else
-        self.war(player1,result[:player1],player2,result[:player2])
-      end
     end
   end
 end
