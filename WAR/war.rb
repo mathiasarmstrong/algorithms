@@ -1,12 +1,10 @@
-# This class is complete. You do not need to alter this
+# # This class is complete. You do not need to alter this
 
-
-
-end
 class Card
   # Rank is the rank of the card, 2-10, J, Q, K, A
   # Value is the numeric value of the card, so J = 11, A = 14
-  # Suit is the suit of the card, Spades, Diamonds, Clubs or Hearts
+  # Suit is the suit of the card, Spades, Diamonds, Clubs or Hearts'
+  attr_accessor :rank, :value, :suit
   def initialize(rank, value, suit)
     @rank = rank
     @value = value
@@ -45,7 +43,7 @@ class Deck
     # @first_index+=1
     # i>=51 ? @deck.compact! : nil
     # res
-    if @deck[51].nil?
+    if @deck[@deck.length].nil?
       @deck=@placeholder
       @first_index=0
       @placeholder=[]
@@ -100,6 +98,7 @@ class Deck
       @deck<< Card.new(rank,value,suit)
     end
   end
+end
 # You may or may not need to alter this class
 class Player
   def initialize(name)
@@ -117,24 +116,30 @@ class War
     @deck.create_52_card_deck
     @player1.hand.deck=@deck.deck[0..25]
     @player1.hand.deck=@deck.deck[26..51]
-    # while i<@deck.deck.length
-    #   if i%2!=0
-    #     @player1.hand.add_card(@deck.deal_card)
-    #   else
-    #     @player1.hand.add_card(@deck.deal_card)
-    #   end
-    #   i+=1
-    # end
   end
 
   # You will need to play the entire game in this method using the WarAPI
   def play_game
-
-    WarAPI.play_turn(@player1,@player1.hand.deal_card,@player2,@player2.hand.deal_card)
-
+    loot=WarAPI.play_turn(@player1,@player1.hand.deal_card,@player2,@player2.hand.deal_card)
+    loot.each do |key, value|
+      value.each{|card|key.hand.add_card(card)}
+    end
+  end
+  def war(player1,card1,player2,card2)
+    temp_deck2, temp_deck1=[card1], [card2]
+    i=0
+    while i<4
+      temp_deck1<<player1.hand.deal_card
+      i+=1
+    end
+    i=0
+    while i<4
+      temp_deck2<<player2.hand.deal_card
+      i+=1
+    end
+   return {player1: temp_deck1, player2: temp_deck2}
   end
 end
-
 
 class WarAPI
   # This method will take a card from each player and
@@ -142,10 +147,18 @@ class WarAPI
   def self.play_turn(player1, card1, player2, card2)
     if card1.value > card2.value
       {player1 => [card1, card2], player2 => []}
-    elsif card2.value > card1.value #|| Rand(100).even?
+    elsif card2.value > card1.value
       {player1 => [], player2 => [card2, card1]}
-    else
-      # {player1 => [card1, card2], player2 => []}
+    elsif card1==card2
+      result = self.war
+      winner = result[:player1]+ result[:player2]
+      if result[:player1][-1]>result[:player2][-1]
+        {player1 => winner, player2 => []}
+      elsif result[:player1][-1]<result[:player2][-1]
+        {player2 => winner, player1 => []}
+      else
+        self.war(player1,result[:player1],player2,result[:player2])
+      end
     end
   end
 end

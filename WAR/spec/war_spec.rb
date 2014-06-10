@@ -2,7 +2,7 @@ require 'rubygems'
 require 'rspec'
 require 'pry-debugger'
 require_relative '../war.rb'
-describe 'Card'
+describe 'Card'do
   describe '#initilaize' do
     context 'it recieves a rank value and suit' do
       it 'creates a new card with that rank value and suit' do
@@ -14,7 +14,8 @@ describe 'Card'
     end
   end
 end
-describe 'Deck'
+
+describe 'Deck' do
   describe '#initilaize' do
     context 'creation of a new Deck' do
       it 'creates a new empty Deck' do
@@ -41,5 +42,4 @@ describe 'Deck'
       expect(test.placeholder[-1]).to eq(card)
     end
   end
-
 end
