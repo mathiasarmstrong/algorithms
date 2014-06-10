@@ -10,6 +10,9 @@ class Card
     @value = value
     @suit = suit
   end
+  def translate
+    return "#{@rank} of #{@suit}"
+  end
 end
 
 # TODO: You will need to complete the methods in this class
@@ -29,6 +32,7 @@ class Deck
 
   # Mix around the order of the cards in your deck
   def shuffle # You can't use .shuffle!
+    # binding.pry
     @deck.size.times do |i|
       j=rand(51)
       @deck[i],@deck[j] = deck[j],deck[i]
@@ -37,7 +41,7 @@ class Deck
 
   # Remove the top card from your deck and return it
   def deal_card
-    if @deck[@deck.length].nil?
+    if @deck[@deck.length-1].nil?
       @deck=@placeholder
       @first_index=0
       @placeholder=[]
@@ -50,26 +54,19 @@ class Deck
 
   # Reset this deck with 52 cards
   def create_52_card_deck
-    while @deck.length < 52
-      i=0
-      until i>4
-        case i
-          when i=1
-            self.create_cards("Spades")
-            i+=1
-          when i=2
-            self.create_cards("Diamonds")
-            i+=1
-          when i=3
-            self.create_cards("Hearts")
-            i+=1
-          when i=4
-            self.create_cards("Diamonds")
-            i+=1
-        end
+    4.times do |i|
+      case i
+        when i=0
+          self.create_cards("Spades")
+        when i=1
+          self.create_cards("Diamonds")
+        when i=2
+          self.create_cards("Hearts")
+        when i=3
+          self.create_cards("Diamonds")
       end
     end
-    @deck.shuffle
+    self.shuffle
   end
 
   def create_cards(suit)
@@ -95,6 +92,7 @@ class Deck
 end
 # You may or may not need to alter this class
 class Player
+  attr_reader :name, :hand
   def initialize(name)
     @name = name
     @hand = Deck.new
@@ -102,21 +100,23 @@ class Player
 end
 
 class War
+  attr_reader :player1, :player2
   def initialize(player1, player2)
     @deck = Deck.new
     @player1 = Player.new(player1)
     @player2 = Player.new(player2)
     # You will need to shuffle and pass out the cards to each player
     @deck.create_52_card_deck
+    # binding.pry
     @player1.hand.deck=@deck.deck[0..25]
-    @player1.hand.deck=@deck.deck[26..51]
+    @player2.hand.deck=@deck.deck[26..51]
   end
 
   # You will need to play the entire game in this method using the WarAPI
   def play_game
     loot = WarAPI.play_turn(@player1,@player1.hand.deal_card,@player2,@player2.hand.deal_card)
     loot.each do |key, value|
-      value.each{|card|key.hand.add_card(card)}
+      value.each{|card| key.hand.add_card(card)}
     end
   end
 
@@ -129,15 +129,20 @@ class WarAPI
   def self.play_turn(player1, card1, player2, card2)
     if card1.nil? || card2.nil?
       self.winner(player1, card1, player2, card2)
+
     elsif !card1.is_a?(Array)
      (card1,card2=[card1],[card2])
     end
+    # binding.pry
     if card1[-1].value > card2[-1].value
+      puts "#{player1.name}: #{card1[-1].translate}\n#{player2.name}: #{card2[-1].translate}\n#{player1.name} wins this round"
       {player1 => card1+card2, player2 => []}
     elsif card2[-1].value > card1[-1].value
+      puts "#{player1.name}: #{card1[-1].translate}\n#{player2.name}: #{card2[-1].translate}\n#{player2.name} wins this round"
       {player1 => [], player2 => card2+card1}
     elsif card1[-1]==card2[-1]
-      result = self.war
+      puts "#{player1.name}: #{card1[-1].translate}\n#{player2.name}: #{card2[-1].translate}\nthis is WAR!!"
+      self.war
     end
   end
   def self.war(player1,card1,player2,card2)
@@ -150,6 +155,6 @@ class WarAPI
     loot = WarAPI.play_turn(@player1,card1,@player2,card2)
   end
   def self.winner(player1, card1, player2, card2)
-    card1.nil? ? (puts "#{player1} has won the game") :(puts "#{player2} has won the game")
+    card1.nil? ? (puts "#{player2.name} has won the game") : (puts "#{player1.name} has won the game")
   end
 end
