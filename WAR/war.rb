@@ -16,7 +16,9 @@ class Card
 end
 
 class Linked_list
+
   attr_reader :first_node, :last_node
+
   def initialize(value=nil)
       @first_node = Node.new(value) if !value.nil?
       @last_node=first_node
@@ -31,11 +33,13 @@ class Linked_list
       @last_node = @last_node.next_node
     end
   end
+
   def remove_first_node
     new_first_node = @first_node.next_node
     @first_node.next_node=nil
     @first_node = new_first_node
   end
+
   class Node
     attr_accessor :value, :next_node
     def initialize(value,next_node=nil)
@@ -47,7 +51,9 @@ end
 
 # TODO: You will need to complete the methods in this class
 class Deck
+
   attr_accessor :deck, :deck_length
+
   def initialize
     @deck = Linked_list.new # Determine the best way to hold the cards
     @deck_length=0
@@ -80,25 +86,30 @@ class Deck
 
     (@deck_length-1).times do |i|
       shuffle_node1 = @deck.first_node
-      shuffle_node2 = @deck.first_node
+
       i.times do
         shuffle_node1 = shuffle_node1.next_node
+        shuffle_node1.nil? ? shuffle_node1 = @deck.first_node : nil
       end
-      j=rand(@deck_length-2)
+
+      j=rand(@deck_length-(i+1))
+      shuffle_node2 = @deck.first_node
+
       j.times do |k|
         shuffle_node2 = shuffle_node2.next_node
+        shuffle_node2.nil? ? shuffle_node2 = @deck.first_node : nil
       end
-       binding.pry
 
-      temporary_node = shuffle_node2.next_node
       temporary_node1 = shuffle_node1.next_node
+      temporary_node2 = shuffle_node2.next_node
       shuffle_node2.next_node = temporary_node1
-      shuffle_node1.next_node = temporary_node
+      shuffle_node1.next_node = temporary_node2
     end
   end
 
  # add 52 cards to the deck and shuffle them
   def create_52_card_deck
+    # @temporary_deck = []
     4.times do |i|
       case i
         when i=0
