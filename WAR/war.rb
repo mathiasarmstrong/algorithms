@@ -26,7 +26,7 @@ class Linked_list
 
   def add_node(value)
     if first_node.nil?
-      @first_node=Node.new(value)
+      @first_node = Node.new(value)
       @last_node = @first_node
     else
       @last_node.next_node = Node.new(value)
@@ -35,14 +35,16 @@ class Linked_list
   end
 
   def remove_first_node
-    new_first_node = @first_node.next_node
-    @first_node.next_node=nil
-    @first_node = new_first_node
+    if !first_node.nil?
+      new_first_node = @first_node.next_node
+      @first_node.next_node = nil
+      @first_node = new_first_node
+    end
   end
 
   class Node
     attr_accessor :value, :next_node
-    def initialize(value,next_node=nil)
+    def initialize(value, next_node = nil)
       @value = value
       @next_node = next_node
     end
@@ -56,86 +58,79 @@ class Deck
 
   def initialize
     @deck = Linked_list.new # Determine the best way to hold the cards
-    @deck_length=0
+    @deck_length = 0
   end
 
  # create 13 cards for a specific suit of card
   def create_cards(suit)
-    j=1
-    while j<=13
-      if j<=10
-        rank=j
-        value =j
-      elsif j ==11
-        rank = "J"
-        value =j
-      elsif j ==12
-        rank ="Q"
-        value =j
+    j = 1
+    while j <= 13
+      if j <= 10
+        rank = j
+        value = j
+      elsif j == 11
+        rank =  "J"
+        value = j
+      elsif j == 12
+        rank = "Q"
+        value = j
       else
-        rank="K"
-        value =j
+        rank = "K"
+        value = j
       end
       j+=1
-      self.add_card(Card.new(rank,value,suit))
+      add_card(Card.new(rank,value,suit))
     end
   end
 
  # Mix around the order of the cards in your deck
   def shuffle # You can't use .shuffle!
+    temp_deck = []
 
-    (@deck_length-1).times do |i|
-      shuffle_node1 = @deck.first_node
+    until @deck_length == 0
+      temp_deck << deal_card
+    end
 
-      i.times do
-        shuffle_node1 = shuffle_node1.next_node
-        shuffle_node1.nil? ? shuffle_node1 = @deck.first_node : nil
-      end
+    temp_deck.length.times do |i|
+      j = rand(temp_deck.length)
+      temp_card = temp_deck[i]
+      temp_deck[i] = temp_deck[j]
+      temp_deck[j] = temp_card
+    end
 
-      j=rand(@deck_length-(i+1))
-      shuffle_node2 = @deck.first_node
-
-      j.times do |k|
-        shuffle_node2 = shuffle_node2.next_node
-        shuffle_node2.nil? ? shuffle_node2 = @deck.first_node : nil
-      end
-
-      temporary_node1 = shuffle_node1.next_node
-      temporary_node2 = shuffle_node2.next_node
-      shuffle_node2.next_node = temporary_node1
-      shuffle_node1.next_node = temporary_node2
+    until temp_deck.length ==0
+      add_card(temp_deck.shift)
     end
   end
 
  # add 52 cards to the deck and shuffle them
   def create_52_card_deck
-    # @temporary_deck = []
     4.times do |i|
       case i
-        when i=0
-          self.create_cards("Spades")
-        when i=1
-          self.create_cards("Diamonds")
-        when i=2
-          self.create_cards("Hearts")
-        when i=3
-          self.create_cards("Diamonds")
+        when i = 0
+          create_cards("Spades")
+        when i = 1
+          create_cards("Diamonds")
+        when i = 2
+          create_cards("Hearts")
+        when i = 3
+          create_cards("Diamonds")
       end
     end
-    self.shuffle
+    self
   end
 
  # Given a card, insert it on the bottom your deck
   def add_card(card)
     @deck.add_node(card)
-    @deck_length+=1
+    @deck_length += 1
   end
 
  # Remove the top card from your deck and return it
   def deal_card
-    dealt_card = @deck.first_node
+    dealt_card = @deck.first_node.value
     @deck.remove_first_node
-    @deck_length-=1
+    @deck_length -= 1
     dealt_card
   end
 end
@@ -162,15 +157,23 @@ class War
     @player1 = Player.new(player1)
     @player2 = Player.new(player2)
     # You will need to shuffle and pass out the cards to each player
-    @deck.create_52_card_deck
-    # binding.pry
-    while @deck_length>0
-      rand(2)==0 ? @player1.add_to_hand(@deck.deal_card) : @player2.add_to_hand(@deck.deal_card)
+    deal_all_cards
+  end
+
+  def deal_all_cards
+    @deck.create_52_card_deck.shuffle
+    (@deck.deck_length/2).times do |i|
+      @player1.hand.add_card(@deck.deal_card)
+    end
+    (@deck.deck_length).times do |i|
+      @player2.hand.add_card(@deck.deal_card)
     end
   end
+
   # You will need to play the entire game in this method using the WarAPI
   def play_game
     loot = WarAPI.play_turn(@player1,@player1.deal_card,@player2,@player2.deal_card)
+
     loot.each do |key, value|
       value.each{|card| key.hand.add_card(card)}
     end
@@ -184,20 +187,21 @@ class WarAPI
     if card1.nil? || card2.nil?
       self.winner(player1, card1, player2, card2)
     elsif !card1.is_a?(Array)
-     (card1,card2=[card1],[card2])
+     (card1,card2 = [card1],[card2])
     end
     # binding.pry
     if card1[-1].value > card2[-1].value
       puts "#{player1.name}: #{card1[-1].translate}\n#{player2.name}: #{card2[-1].translate}\n#{player1.name} wins this round"
-      {player1 => card1+card2, player2 => []}
+      {player1 => card1 + card2, player2 => []}
     elsif card2[-1].value > card1[-1].value
       puts "#{player1.name}: #{card1[-1].translate}\n#{player2.name}: #{card2[-1].translate}\n#{player2.name} wins this round"
       {player1 => [], player2 => card2+card1}
-    elsif card1[-1]==card2[-1]
+    elsif card1[-1] == card2[-1]
       puts "#{player1.name}: #{card1[-1].translate}\n#{player2.name}: #{card2[-1].translate}\nthis is WAR!!"
       self.war
     end
   end
+
   def self.war(player1,card1,player2,card2)
     4.times do |i|
       card1<<player1.hand.deal_card
