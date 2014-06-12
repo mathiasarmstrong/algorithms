@@ -40,7 +40,7 @@ describe 'Deck' do
       expect(test.deck_length).to eq(52)
     end
   end
-  describe '#shuffle'do
+  describe '#shuffle'do#this will fail on occasion if first card doesn't change location
     context 'at the beginning of the game' do
       it 'shuffles the deck'do
         test = Deck.new
@@ -102,13 +102,37 @@ describe 'WarAPI' do
         card2 = Card.new('K',13,'Clubs')
         expect(WarAPI.play_turn(player1,card1,player2,card2)).to be_a(Hash)
       end
+    end
+
+    context 'The players hands were a draw' do
       it 'should return a hash without an error' do
         player1 = Player.new("Jered")
         player2 = Player.new("Gideon")
         card1 = Card.new('K',13,'Clubs')
-        card2 = Card.new('K',13,'Clubs')
-        expect(WarAPI.play_turn(player1,card1,player2,card2)).to be_a(Hash)
+        card2 = Card.new('Q',12,'Clubs')
+        10.times do
+        player2.add_to_hand(card2)
+        end
+        10.times do
+        player1.add_to_hand(card1)
+        end
+        expect(WarAPI.play_turn(player1,card1,player2,card1)).to be_a(Hash)
+      end
+    end
 
+    context 'The players hands were a draw' do
+      it 'should return a hash without an error' do
+        test = War.new("Jered", "Gideon")
+        25.times do
+          test.play_game
+        end
+      end
+    end
+
+    context 'The it can play 1 full game and print the winner' do
+      it 'should print winner without an error' do
+        test = War.new("Jered", "Gideon")
+        test.full_game
       end
     end
   end
@@ -121,12 +145,14 @@ describe 'Linked_list' do
       expect(test_list.first_node).to be_nil
       expect(test_list.last_node).to be_nil
     end
+
     it 'creates a new linked list with the first node and last node'do
       test_list = Linked_list.new("practice card")
       expect(test_list.first_node.value).to eq("practice card")
       expect(test_list.last_node.value).to eq("practice card")
     end
   end
+
   describe '#add_node' do
     context 'when adding a new node to the linked list' do
       it 'moves the last_node to the newest node and leaves the first_node alone'do
@@ -136,9 +162,19 @@ describe 'Linked_list' do
 
         expect(test_list.first_node.value).to eq("practice card")
         expect(test_list.last_node.value).to eq("third card")
+      end
     end
   end
+  describe 'Plays 10 full games without error' do
+    it 'plays a game'do
+      expect(10.times do
+              play_full_game
+            end).to
+    end
   end
+
 end
+
+
 
 

@@ -51,7 +51,7 @@ class Linked_list
   end
 end
 
-# TODO: You will need to complete the methods in this class
+ # TODO: You will need to complete the methods in this class
 class Deck
 
   attr_accessor :deck, :deck_length
@@ -105,18 +105,20 @@ class Deck
 
  # add 52 cards to the deck and shuffle them
   def create_52_card_deck
-    4.times do |i|
-      case i
-        when i = 0
-          create_cards("Spades")
-        when i = 1
-          create_cards("Diamonds")
-        when i = 2
-          create_cards("Hearts")
-        when i = 3
-          create_cards("Diamonds")
+
+      4.times do |i|
+        case i
+          when i = 0
+            create_cards("Spades")
+          when i = 1
+            create_cards("Diamonds")
+          when i = 2
+            create_cards("Hearts")
+          when i = 3
+            create_cards("Diamonds")
+        end
       end
-    end
+
     self
   end
 
@@ -158,6 +160,7 @@ class War
     @player2 = Player.new(player2)
     # You will need to shuffle and pass out the cards to each player
     deal_all_cards
+    @wars =0
   end
 
   def deal_all_cards
@@ -172,11 +175,26 @@ class War
 
   # You will need to play the entire game in this method using the WarAPI
   def play_game
+    @wars+=1
+
     loot = WarAPI.play_turn(@player1,@player1.deal_card,@player2,@player2.deal_card)
 
     loot.each do |key, value|
       value.each{|card| key.hand.add_card(card)}
     end
+  end
+
+  def full_game
+    until player1.hand.deck_length == 0 || player2.hand.deck_length == 0
+      self.play_game
+      # puts "hello"
+    end
+    if player1.hand.deck_length == 0
+    puts "#{player2.name} has won the game after #{@wars} hands"
+    else
+    puts "#{player1.name} has won the game after #{@wars} hands"
+    end
+
   end
 end
 
@@ -184,48 +202,47 @@ class WarAPI
   # This method will take a card from each player and
   # return a hash with the cards that each player should receive
   def self.play_turn(player1, card1, player2, card2)
-    if card1.nil? || card2.nil?
-      self.winner(player1, card1, player2, card2)
-    elsif !card1.is_a?(Array)
-     (card1,card2 = [card1],[card2])
-    end
-    # binding.pry
+    (card1,card2 = [card1],[card2]) if !card1.is_a?(Array)
+
+    self.winner(player1, card1, player2, card2) if card1[-1].nil? || card2[-1].nil?
+
+
     if card1[-1].value > card2[-1].value
-      puts "      #{player1.name}:  #{card1[-1].translate}
-      #{player2.name}: #{card2[-1].translate}
-      #{player1.name} wins this round"
+      # puts "      #{player1.name}:  #{card1[-1].translate}
+      # #{player2.name}: #{card2[-1].translate}
+      # #{player1.name} wins this round"
 
       {player1 => card1 + card2, player2 => []}
 
     elsif card2[-1].value > card1[-1].value
-      puts "      #{player1.name}:  #{card1[-1].translate}
-      #{player2.name}: #{card2[-1].translate}
-      #{player2.name} wins this round"
+      # puts "      #{player1.name}:  #{card1[-1].translate}
+      # #{player2.name}: #{card2[-1].translate}
+      # #{player2.name} wins this round"
 
       {player1 => [], player2 => card2+card1}
 
-    elsif card1[-1] == card2[-1]
-      puts "      #{player1.name}:  #{card1[-1].translate}
-      #{player2.name}: #{card2[-1].translate}
-      this is a WAR!!"
+    elsif card1[-1].value == card2[-1].value
+      # puts "      #{player1.name}:  #{card1[-1].translate}
+      # #{player2.name}: #{card2[-1].translate}
+      # this is a WAR!!"
 
-      self.war
+      self.war(player1, card1, player2, card2)
     end
   end
 
   def self.war(player1,card1,player2,card2)
     4.times do |i|
-      card1 << player1.hand.deal_card
+      card1 << player1.hand.deal_card if player1.hand.deck_length!=0
     end
 
     4.times do |i|
-      card2 << player2.hand.deal_card
+      card2 << player2.hand.deal_card if player2.hand.deck_length!=0
     end
 
-    loot = WarAPI.play_turn(@player1,card1,@player2,card2)
+    loot = WarAPI.play_turn(player1,card1.compact,player2,card2.compact)
   end
+end
 
-  def self.winner(player1, card1, player2, card2)
-    card1.nil? ? (puts "#{player2.name} has won the game") : (puts "#{player1.name} has won the game")
-  end
+def play_full_game
+  War.new("Jered", "Gideon").full_game
 end
