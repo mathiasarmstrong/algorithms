@@ -191,26 +191,40 @@ class WarAPI
     end
     # binding.pry
     if card1[-1].value > card2[-1].value
-      puts "#{player1.name}: #{card1[-1].translate}\n#{player2.name}: #{card2[-1].translate}\n#{player1.name} wins this round"
+      puts "      #{player1.name}:  #{card1[-1].translate}
+      #{player2.name}: #{card2[-1].translate}
+      #{player1.name} wins this round"
+
       {player1 => card1 + card2, player2 => []}
+
     elsif card2[-1].value > card1[-1].value
-      puts "#{player1.name}: #{card1[-1].translate}\n#{player2.name}: #{card2[-1].translate}\n#{player2.name} wins this round"
+      puts "      #{player1.name}:  #{card1[-1].translate}
+      #{player2.name}: #{card2[-1].translate}
+      #{player2.name} wins this round"
+
       {player1 => [], player2 => card2+card1}
+
     elsif card1[-1] == card2[-1]
-      puts "#{player1.name}: #{card1[-1].translate}\n#{player2.name}: #{card2[-1].translate}\nthis is WAR!!"
+      puts "      #{player1.name}:  #{card1[-1].translate}
+      #{player2.name}: #{card2[-1].translate}
+      this is a WAR!!"
+
       self.war
     end
   end
 
   def self.war(player1,card1,player2,card2)
     4.times do |i|
-      card1<<player1.hand.deal_card
+      card1 << player1.hand.deal_card
     end
+
     4.times do |i|
-      card2<<player2.hand.deal_card
+      card2 << player2.hand.deal_card
     end
+
     loot = WarAPI.play_turn(@player1,card1,@player2,card2)
   end
+
   def self.winner(player1, card1, player2, card2)
     card1.nil? ? (puts "#{player2.name} has won the game") : (puts "#{player1.name} has won the game")
   end

@@ -95,8 +95,19 @@ end
 describe 'WarAPI' do
   describe '#self.play_turn' do
     context 'recieves two different cards for the players' do
-      it 'should print out a winner and card values' do
-
+      it 'should return a hash without an error' do
+        player1 = Player.new("Jered")
+        player2 = Player.new("Gideon")
+        card1 = Card.new('Q',12,'Clubs')
+        card2 = Card.new('K',13,'Clubs')
+        expect(WarAPI.play_turn(player1,card1,player2,card2)).to be_a(Hash)
+      end
+      it 'should return a hash without an error' do
+        player1 = Player.new("Jered")
+        player2 = Player.new("Gideon")
+        card1 = Card.new('K',13,'Clubs')
+        card2 = Card.new('K',13,'Clubs')
+        expect(WarAPI.play_turn(player1,card1,player2,card2)).to be_a(Hash)
 
       end
     end
