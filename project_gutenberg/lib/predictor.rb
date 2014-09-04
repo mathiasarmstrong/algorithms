@@ -64,7 +64,7 @@ class Predictor
     @all_books.each do |category, books|
       books.each do |filename, book|
         prediction = predict(book)
-        if prediction == category.to_sym
+        if prediction.downcase == category.to_sym
           right += 1
           puts "Correct! Predicted #{prediction}. #{filename}." if opts[:debug]
         else

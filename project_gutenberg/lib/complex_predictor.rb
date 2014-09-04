@@ -1,3 +1,7 @@
+require 'rubygems'
+require 'fast-stemmer'
+require 'classifier'
+require 'pry-debugger'
 require_relative 'predictor'
 
 class ComplexPredictor < Predictor
@@ -6,21 +10,19 @@ class ComplexPredictor < Predictor
   #
   # Returns nothing.
   def train!
-    @data = {}
-    all_words = Hash.new(0)
-    categories = {}
-
-
-
+    @categories = []
     @all_books.each do |category, book|
-      book.each do |word|
-        all_words[word]+=1
-        category_words[category][word]+=1
-        categories[category]=Hash.new(0)
-      end
+      @categories<< category unless @categories.include?(category)
+    end
+    @classifier = Classifier::Bayes.new()
+    @categories.each do |categ|
+      @classifier.add_category(categ)
     end
 
-
+    @all_books.each do |category, book|
+      read = book.join(' ')
+      @classifier.train(category, read)
+    end
 
   end
 
@@ -30,8 +32,9 @@ class ComplexPredictor < Predictor
   #
   # Returns a category.
   def predict(tokens)
-    # Always predict astronomy, for now.
-    :astronomy
+
+
+    return @classifier.classify(tokens[0..tokens.length/15].join(' ')).to_sym
   end
 end
 
